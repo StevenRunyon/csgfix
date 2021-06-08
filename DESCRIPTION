@@ -1,12 +1,12 @@
 Package: csgfix
 Type: Package
-Title: What the Package Does (Title Case)
+Title: csgfix
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: Steve Runyon, Conservation Science Global
+Maintainer: Steve Runyon <steve.runyon@consciglobal.org>
+Description: Changes the format of data for use with the ctmm package.
+    Also converts coordinates and projects them to x and y.
+License: GNU GENERAL PUBLIC LICENSE Version 3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1

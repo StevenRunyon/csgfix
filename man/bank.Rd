@@ -9,7 +9,7 @@ bank(
   projectionType = "na",
   timeformat = "\%m/\%d/\%Y \%T",
   ct = TRUE,
-  coordFix = FALSE
+  coordFix = function(lat, long, n) {     return(data.frame(lat, long)) }
 )
 }
 \arguments{

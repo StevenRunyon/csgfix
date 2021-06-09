@@ -8,11 +8,9 @@
 #' @param timeformat: character (format for use in as.POSIXct), the format Date_Time is in
 #' @param ct: boolean, FALSE if you want time to be saved as a string in move bank format, TRUE if you want it as a POSIXct
 #' @param coordFix: function, a function that converts lat and long at datetime to NAD83, inputs are vectors lat (numeric), long (numeric), and datetime (POSIXct). returns a data frame with columns "lat" and "long". FALSE if you don't want to change the coords at all.
-bank <- function(data, projectionType="na", timeformat="%m/%d/%Y %T", ct=TRUE, coordFix=FALSE ){
+bank <- function(data, projectionType="na", timeformat="%m/%d/%Y %T", ct=TRUE, coordFix=function(lat,long,n){return(data.frame(lat,long))} ){
 
-  if(coordFix==FALSE)
-    coordFix <- function(lat, long, n){return(data.frame(lat,long))}
-
+  #adds "timestamp" column
   if(ct){
     timeline <- as.POSIXct(data$Date_Time, format="%m/%d/%Y %T", tz="GMT")
     data$timestamp <- timeline
@@ -21,8 +19,8 @@ bank <- function(data, projectionType="na", timeformat="%m/%d/%Y %T", ct=TRUE, c
     timeline <- as.POSIXlt(data$Date_Time, format="%m/%d/%Y %T", tz="GMT")
     data$timestamp <- paste0((1900+timeline$year),"-",pad(timeline$mon,2),"-",pad(timeline$mday,2)," ",pad(timeline$hour,2),":",pad(timeline$min,2),":",pad(timeline$sec,2),".000")
   }
-  #adds "timestamp" column
 
+  #projects coordinates if using north america equidistant conic
   if(tolower(projectionType)%in%c("north_america_equidistant_conic", "na", "north america equidistant conic", "naec")){
     res <- coordFix(data$Latitude, data$Longitude, timeline) #gets coordinates in NAD83 as "res"
     res2 <- projectionNA(res$lat, res$long) #gets X and Y coordinates as "res"
@@ -32,8 +30,7 @@ bank <- function(data, projectionType="na", timeformat="%m/%d/%Y %T", ct=TRUE, c
 
   if("GMT_offset"%in%colnames(data))
     data$study.timezone <- paste0("Etc/GMT",c("","+","+")[sign(data$GMT_offset)+2],data$GMT_offset) #adds a study.timezone column, with the time zone given as "Etc/GMT-9" for example
-  data$sensor.type <- "gps" #adds a single character "gps" called sensor.type
-  #data$sensor.type <- rep("gps", nrow(data)) #adds a column that is just "gps" for every entry, called sensor.type
+  data$sensor.type <- "gps" #adds a character "gps" called sensor.type
 
   ##removed local timestamp for now, timezones don't work properly
   #if("LocalTime"%in%colnames(data)){ #if there exists a "LocalTime" column
@@ -153,10 +150,10 @@ generateRandomFlight <- function(origin=c(0,0), names="csg", obs=1000, maxturn=1
   while(x<(obs-1)){
     x <- x + 1
     dist <- stupidRnorm(1)*multi
-      oh <- head[x]*pi/180
+      oh <- (head[x]-360*as.numeric(head[x]>180))*pi/180
      lat <- append( lat,  lat[x]+dist*sin(oh))
     long <- append(long, long[x]+dist*cos(oh))
-    head <- append(head, head[x]+(stupidRnorm(1)-0.5)*maxturn*2)
+    head <- append(head, (head[x]+(stupidRnorm(1)-0.5)*maxturn*2)%%360)
     time <- append(time, time[x]+timestep)
   }
   data <- data.frame(lat, long, head, time)

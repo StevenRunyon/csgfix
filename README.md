@@ -5,12 +5,16 @@ A simple R package for fixing data for use with the `ctmm` package
 
 
 The package can be installed from GitHub using the `devtools` package.    
-``#install.packages("devtools")
-devtools::install_github("StevenRunyon/csgfix")``
+```r
+#install.packages("devtools")
+devtools::install_github("StevenRunyon/csgfix")
+```
 
 In addition, the `fixCoords` function requires the packages `sp` and `rgdal`. These can be downloaded from CRAN.    
-``install.packages("sp")
-install.packages("rgdal")``   
+```r
+install.packages("sp")
+install.packages("rgdal")
+```   
 rgdal requires GDAL version >= 1.11.4, and PROJ version >= 4.8.0.
 
 ## Functions and Parameters

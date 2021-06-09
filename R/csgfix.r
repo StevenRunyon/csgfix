@@ -62,13 +62,13 @@ bank <- function(data, projectionType="na", timeformat="%m/%d/%Y %T", ct=TRUE, c
   return(data)
 }
 
-#'projects lat and long coordinates to x and y with equidistant conic projection
+#'projects lat and long coordinates to x and y with equidistant conic (simple conic) projection
 #' @param lat: numeric vector, latitude (lat and long should be the same length)
 #' @param long: numeric vector, longitude
 #' @param type: boolean or character, FALSE to use your own parameters, or the name of a preset
 #' @param reflat, reflong, sp1, sp2: numeric, parameters for the projection (reflat and reflong are reference latitude and longitude (origin), sp1 and sp2 are standard parallels)
 projectionEquidistantConic <- function(lat, long, type=FALSE, reflat=0, reflong=0, sp1=20, sp2=60){
-  if(type=="North_America_Equidistant_Conic"){ #expects NAD83
+  if(type=="North_America_Equidistant_Conic"){ #if you want this to be equivalent to ArcGIS, it must use NAD83 here
     reflat <- 40
     reflong <- -96
     sp1 <- 20
@@ -99,8 +99,8 @@ projectionNA <- function(lat, long){
 #' @param lat: numeric vector, latitude (lat, long, and datetime should be the same length)
 #' @param long: numeric vector, longitude
 #' @param datetime: POSIXct vector, the datetime when lat and long were recorded
-#' @param inType: character, format that lat and long are in. currently supported:
-#' @param outType: character, format that you want the coordinates converted to. currently supported:
+#' @param inType: character, format that lat and long are in
+#' @param outType: character, format that you want the coordinates converted to
 fixCoords <- function(lat, long, datetime=FALSE, inType="WGS84", outType="NAD83"){
   #absolutely a work in progresss
 
@@ -114,8 +114,8 @@ fixCoords <- function(lat, long, datetime=FALSE, inType="WGS84", outType="NAD83"
     require(rgdal)
     coords <- data.frame(lat, long)
     coordinates(coords) <- c("long","lat") #adds coordinates to coords
-    proj4string(coords) <- CRS("+init=epsg:4326") #adds WGS84 CRS to coordinates
-    coords <- spTransform(coords, CRS("+init=epsg:4269")) #transforms to NAD83
+    proj4string(coords) <- CRS("+init=epsg:4326 +ellps=WGS84 +datum=WGS84 +proj=longlat") #adds WGS84 CRS to coordinates
+    coords <- spTransform(coords, CRS("+init=epsg:4269 +ellps=GRS80 +datum=NAD83")) #transforms to NAD83
     return(data.frame(lat=coords$lat, long=coords$long))
   }
 
@@ -183,4 +183,14 @@ stupidRnorm <- function(n, mean=0.5, sd=0.125){
   x[x>1] <- x[x>1] - 1
   x[x<0] <- x[x<0] + 1
   return(x)
+}
+
+#' gets a Move object from data
+#' @param data: dataframe, the input data for bank(data)
+#' @param proj: CRS object, sent to move::move
+#' @param removeDuplicatedTimestamps: boolean, sent to move::move
+quickMove <- function(data, proj=CRS("+init=epsg:4326 +proj=longlat +ellps=WGS84 +datum=WGS84"), removeDuplicatedTimestamps=FALSE){
+  require(move)
+  b <- bank(data, coordFix = fixCoords)
+  return(move(x=b$x, y=b$y, time=b$timestamp, proj=proj, data=b, animal=b$individual.local.identifier, sensor=b$sensor, removeDuplicatedTimestamps=removeDuplicatedTimestamps))
 }

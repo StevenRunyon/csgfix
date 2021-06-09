@@ -13,9 +13,9 @@ fixCoords(lat, long, datetime = FALSE, inType = "WGS84", outType = "NAD83")
 
 \item{datetime:}{POSIXct vector, the datetime when lat and long were recorded}
 
-\item{inType:}{character, format that lat and long are in. currently supported:}
+\item{inType:}{character, format that lat and long are in}
 
-\item{outType:}{character, format that you want the coordinates converted to. currently supported:}
+\item{outType:}{character, format that you want the coordinates converted to}
 }
 \description{
 converts coordinates from inType to outType

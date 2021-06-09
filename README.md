@@ -56,8 +56,8 @@ rgdal requires GDAL version >= 1.11.4, and PROJ version >= 4.8.0.
   creates a dataframe of random flight data that is totally random and nothing like a real bird, but still useful for testing     
   `origin`: numeric vector of length 2, the coordinates where bird will start    
   `names`: character, "csg" or "movebank", depending on how you want the columns of the resulting data to be named    
-  `obs`: numeric, number of observations to create    
-  `maxturn`: numeric, the maximum change in heading in each step (measured in degrees, can turn _maxturn_ left or right)
+  `obs`: numeric, number of observations to create     
+  `maxturn`: numeric, the maximum change in heading in each step (measured in degrees, can turn _maxturn_ left or right)     
   `timestep`: numeric, the number of seconds between each observation    
   `timestart`: POSIXct, the time you want the first observation to be    
   `multi`: numeric, the distance the bird travels in each observation (in change in lat/long) will be a random number with a minimum of 0 and a maximum of multi    
@@ -65,6 +65,6 @@ rgdal requires GDAL version >= 1.11.4, and PROJ version >= 4.8.0.
   `n`: numeric, the Animal_ID or FALSE to randomize it (used only if _fakemisc_ is TRUE)    
  
 ## Data Input    
-`bank` uses specific column names of the data. Specifically, it needs columns named
+_bank_ uses specific column names of the data. Specifically, it needs columns named
 "Animal_ID", "Date_Time", "GMT_offset", "Latitude", "Longitude", "KPH", "Heading", "Altitude", "HDOP"
 and either "ASY" or "Season" and "SeasonYr"

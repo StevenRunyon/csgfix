@@ -61,6 +61,7 @@ rgdal requires GDAL version >= 1.11.4, and PROJ version >= 4.8.0.
   `timestep`: numeric, the number of seconds between each observation    
   `timestart`: POSIXct, the time you want the first observation to be    
   `multi`: numeric, the distance the bird travels in each observation (in change in lat/long) will be a random number with a minimum of 0 and a maximum of multi    
+  `rand`: function, a function that generates random numbers in [0,1], where the first parameter is the number of numbers to generate (default is normal distribution, mean=0.5, sd=0.125, limited to [0,1])     
   `fakemisc`: boolean, if you want to fake the other columns needed for _bank_    
   `n`: numeric, the Animal_ID or FALSE to randomize it (used only if _fakemisc_ is TRUE)    
  

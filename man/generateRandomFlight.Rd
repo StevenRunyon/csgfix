@@ -12,7 +12,8 @@ generateRandomFlight(
   timestep = 3600,
   timestart = Sys.time(),
   multi = 1/500,
-  plot = FALSE
+  fakemisc = TRUE,
+  n = FALSE
 )
 }
 \arguments{
@@ -29,6 +30,10 @@ generateRandomFlight(
 \item{timestart:}{POSIXct, the time you want the first observation to be}
 
 \item{multi:}{numeric, the distance the bird travels in each observation (in change in lat/long) will be a random number in [0,multi)}
+
+\item{fakemisc:}{boolean, if you want to fake the other columns needed for bank()}
+
+\item{n:}{numeric, the Animal_ID or FALSE to randomize it}
 }
 \description{
 generates a fake flight data. it's all random so it doesn't behave like an actual bird.

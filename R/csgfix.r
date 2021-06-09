@@ -1,13 +1,17 @@
 # Steve Runyon, Conservation Science Global, 2021
 # last updated: 2021-06-08
+# requires GDAL
 
 #'changes data to Movebank format for use with ctmm package
 #' @param data: dataframe, the input data
 #' @param projectionType: boolean or character, FALSE if you don't want to convert lat/long to X/Y (if you want to use an existing X and Y). Accepted values: "North_America_Equidistant_Conic"
 #' @param timeformat: character (format for use in as.POSIXct), the format Date_Time is in
 #' @param ct: boolean, FALSE if you want time to be saved as a string in move bank format, TRUE if you want it as a POSIXct
-#' @param coordFix: function, a function that converts lat and long at datetime to NAD83, inputs are vectors lat (numeric), long (numeric), and datetime (POSIXct). returns a data frame with columns "lat" and "long"
-bank <- function(data, projectionType="North_America_Equidistant_Conic", timeformat="%m/%d/%Y %T", ct=TRUE, coordFix=function(lat,long,datetime){return(data.frame(lat=lat,long=long))} ){
+#' @param coordFix: function, a function that converts lat and long at datetime to NAD83, inputs are vectors lat (numeric), long (numeric), and datetime (POSIXct). returns a data frame with columns "lat" and "long". FALSE if you don't want to change the coords at all.
+bank <- function(data, projectionType="na", timeformat="%m/%d/%Y %T", ct=TRUE, coordFix=FALSE ){
+
+  if(coordFix==FALSE)
+    coordFix <- function(lat, long, n){return(data.frame(lat,long))}
 
   if(ct){
     timeline <- as.POSIXct(data$Date_Time, format="%m/%d/%Y %T", tz="GMT")
@@ -19,9 +23,9 @@ bank <- function(data, projectionType="North_America_Equidistant_Conic", timefor
   }
   #adds "timestamp" column
 
-  if(!projectionType==FALSE){
-    res <- fixCoords(data$Latitude, data$Longitude, timeline) #gets coordinates in NAD83 as "res"
-    res2 <- projectionEquidistantConic(res$lat, res$long, projectionType) #gets X and Y coordinates as "res"
+  if(tolower(projectionType)%in%c("north_america_equidistant_conic", "na", "north america equidistant conic", "naec")){
+    res <- coordFix(data$Latitude, data$Longitude, timeline) #gets coordinates in NAD83 as "res"
+    res2 <- projectionNA(res$lat, res$long) #gets X and Y coordinates as "res"
     data$x <- res2$x
     data$y <- res2$y
   }
@@ -31,7 +35,7 @@ bank <- function(data, projectionType="North_America_Equidistant_Conic", timefor
   data$sensor.type <- "gps" #adds a single character "gps" called sensor.type
   #data$sensor.type <- rep("gps", nrow(data)) #adds a column that is just "gps" for every entry, called sensor.type
 
-  ##removed local timestamp for now
+  ##removed local timestamp for now, timezones don't work properly
   #if("LocalTime"%in%colnames(data)){ #if there exists a "LocalTime" column
   #  if(ct){
   #    timeline <- as.POSIXct(data$LocalTime, format="%m/%d/%Y %T", tz=data$study.timezone)
@@ -100,7 +104,7 @@ projectionNA <- function(lat, long){
 #' @param datetime: POSIXct vector, the datetime when lat and long were recorded
 #' @param inType: character, format that lat and long are in. currently supported:
 #' @param outType: character, format that you want the coordinates converted to. currently supported:
-fixCoords <- function(lat, long, datetime, inType="WGS84", outType="NAD83"){
+fixCoords <- function(lat, long, datetime=FALSE, inType="WGS84", outType="NAD83"){
   #absolutely a work in progresss
 
   if(inType==outType)
@@ -109,7 +113,13 @@ fixCoords <- function(lat, long, datetime, inType="WGS84", outType="NAD83"){
   #packages tried: htdp, gdalUtils
   # if i have to port over FORTRAN code...
   if(inType%in%c("WGS84","ITRF2000") && outType=="NAD83"){ # ITRF2000 (WHS84 (G1150)) to NAD83 (CORS96)
-
+    require(sp)
+    require(rgdal)
+    coords <- data.frame(lat, long)
+    coordinates(coords) <- c("long","lat") #adds coordinates to coords
+    proj4string(coords) <- CRS("+init=epsg:4326") #adds WGS84 CRS to coordinates
+    coords <- spTransform(coords, CRS("+init=epsg:4269")) #transforms to NAD83
+    return(data.frame(lat=coords$lat, long=coords$long))
   }
 
   return(data.frame(lat=lat, long=long))
@@ -130,7 +140,9 @@ pad <- function(x, width=3){
 #' @param timestep: numeric, the number of seconds between each observation
 #' @param timestart: POSIXct, the time you want the first observation to be
 #' @param multi: numeric, the distance the bird travels in each observation (in change in lat/long) will be a random number in [0,multi)
-generateRandomFlight <- function(origin=c(0,0), names="csg", obs=1000, maxturn=15, timestep=3600, timestart=Sys.time(), multi=1/500, plot=FALSE){
+#' @param fakemisc: boolean, if you want to fake the other columns needed for bank()
+#' @param n: numeric, the Animal_ID or FALSE to randomize it
+generateRandomFlight <- function(origin=c(0,0), names="csg", obs=1000, maxturn=15, timestep=3600, timestart=Sys.time(), multi=1/500, fakemisc=TRUE, n=FALSE){
   #work in progress
   names <- tolower(names)
    lat <- c(origin[1])
@@ -148,14 +160,22 @@ generateRandomFlight <- function(origin=c(0,0), names="csg", obs=1000, maxturn=1
     time <- append(time, time[x]+timestep)
   }
   data <- data.frame(lat, long, head, time)
-  if(plot){
-    require(ggplot2)
-    ggplot2::ggplot(data=data, aes(x=lat, y=long)) + geom_point() + geom_point(data=head(data,1), color='green') + geom_point(data=tail(data,1), color='red') + ylab("Longitude") + xlab("Latitude")
-  }
-  if(names%in%c("csg"))
+  #if(plot){ require(ggplot2)
+  #     ggplot(data=data, aes(x=lat, y=long)) + geom_point() + geom_point(data=head(data,1), color='green') + geom_point(data=tail(data,1), color='red') + ylab("Longitude") + xlab("Latitude") }
+  if(tolower(names)%in%c("csg"))
     colnames(data) <- c("Latitude", "Longitude", "Heading", "Date_Time")
-  if(names%in%c("movebank","mb","move"))
+  if(tolower(names)%in%c("movebank","mb","move"))
     colnames(data) <- c("location.lat", "location.long", "heading", "timestamp")
+  if(fakemisc){
+    if(n==FALSE)
+      n <- floor(runif(1,min=1,max=1000))
+      data$Animal_ID <- n
+      data$ASY <- paste0(n, "Random", format(time[1], "%Y"))
+      data$KPH <- 0
+      data$Altitude <- 0
+      data$HDOP <- 0 #0 temporarily, will make these something better later
+      data$GMT_offset <- 0
+  }
   return(data)
 }
 

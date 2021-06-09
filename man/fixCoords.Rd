@@ -4,7 +4,7 @@
 \alias{fixCoords}
 \title{converts coordinates from inType to outType}
 \usage{
-fixCoords(lat, long, datetime, inType = "WGS84", outType = "NAD83")
+fixCoords(lat, long, datetime = FALSE, inType = "WGS84", outType = "NAD83")
 }
 \arguments{
 \item{lat:}{numeric vector, latitude (lat, long, and datetime should be the same length)}

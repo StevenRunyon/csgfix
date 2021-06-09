@@ -6,11 +6,10 @@
 \usage{
 bank(
   data,
-  projectionType = "North_America_Equidistant_Conic",
+  projectionType = "na",
   timeformat = "\%m/\%d/\%Y \%T",
   ct = TRUE,
-  coordFix = function(lat, long, datetime) {     return(data.frame(lat = lat, long =
-    long)) }
+  coordFix = FALSE
 )
 }
 \arguments{
@@ -22,7 +21,7 @@ bank(
 
 \item{ct:}{boolean, FALSE if you want time to be saved as a string in move bank format, TRUE if you want it as a POSIXct}
 
-\item{coordFix:}{function, a function that converts lat and long at datetime to NAD83, inputs are vectors lat (numeric), long (numeric), and datetime (POSIXct). returns a data frame with columns "lat" and "long"}
+\item{coordFix:}{function, a function that converts lat and long at datetime to NAD83, inputs are vectors lat (numeric), long (numeric), and datetime (POSIXct). returns a data frame with columns "lat" and "long". FALSE if you don't want to change the coords at all.}
 }
 \description{
 changes data to Movebank format for use with ctmm package

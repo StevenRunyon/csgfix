@@ -66,5 +66,5 @@ rgdal requires GDAL version >= 1.11.4, and PROJ version >= 4.8.0.
  
 ## Data Input    
 `bank` uses specific column names of the data. Specifically, it needs columns named
-"Animal_ID", "Date_Time", "GMT_offset", "Latitude", "Longitude", "KPH", "Heading", "Altitude", "Season", "SeasonYr", "HDOP"
-and optionally "ASY"
+"Animal_ID", "Date_Time", "GMT_offset", "Latitude", "Longitude", "KPH", "Heading", "Altitude", "HDOP"
+and either "ASY" or "Season" and "SeasonYr"

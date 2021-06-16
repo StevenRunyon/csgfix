@@ -10,10 +10,11 @@ The package can be installed from GitHub using the `devtools` package.
 devtools::install_github("StevenRunyon/csgfix")
 ```
 
-In addition, the `fixCoords` function requires the packages `sp` and `rgdal`. These can be downloaded from CRAN.    
+In addition, the *fixCoords* function requires the packages `sp` and `rgdal`. The *bank* function requires the package `dplyr`. These can be downloaded from CRAN.    
 ```r
 install.packages("sp")
 install.packages("rgdal")
+install.packages("dplyr")
 ```   
 rgdal requires GDAL version >= 1.11.4, and PROJ version >= 4.8.0.
 
@@ -24,24 +25,41 @@ rgdal requires GDAL version >= 1.11.4, and PROJ version >= 4.8.0.
   `projectionType`: boolean or character, FALSE or the name of a projection (like "na" for North America Equidistant Conic)     
   `timeformat`: character, the format Date_Time is in (for use with as.POSIXct)    
   `ct`: boolean, TRUE to use POSIXct timestamps, FALSE to use characters that are in the Movebank format    
-  `coordFix`: function, a function that returns a data frame with "lat" and "long" in the desired , it has 3 inputs, numeric vectors for lat and long and a POSIXct vector for timestamp    
-    (by default, this simply returns a dataframe of the first two inputs)
+  `coordFix`: function, a function that returns a data frame with "lat" and "long" in the desired , it has 3 inputs, numeric vectors for lat and long and a POSIXct vector for timestamp (by default, this simply returns a dataframe of the first two inputs)    
+  example:    
+  ```r
+    data <- read.csv("AKgoeasHrly_ex.txt")
+    data2 <- bank(data, coordfix=fixCoords)
+  ```
 
 #### quickMove    
   shortcut for creating Move object from data   
   `data`: dataframe, the data used for _bank_   
   `proj`: CRS object, the projection type for _move::move_    
-  `removeDuplicatedTimestamps`: boolean, just what it says, sent to _move::move_    
+  `removeDuplicatedTimestamps`: boolean, just what it says, sent to _move::move_        
+  example:    
+  ```r
+    data <- read.csv("AKgoeasHrly_ex.txt")
+    movedata <- quickMove(data)
+  ```
 
 #### projectionEquidistantConic    
   projects lat and long to x and y using equidistant conic projection    
   `lat` and `long`: numeric vectors of latitude and longitude (to be equivalent to ArcGIS, these must be in NAD83)     
   `type`: boolean or character, FALSE or the name of a preset set of parameters (like "na" for North America Equidistant Conic)    
-  `reflat`, `reflong`, `sp1`, `sp2`: numeric, parameters for the projection if not using _type_ (reference latitude, reference longitude, and standard parallels)    
+  `reflat`, `reflong`, `sp1`, `sp2`: numeric, parameters for the projection if not using _type_ (reference latitude, reference longitude, and standard parallels)     
+  example:    
+  ```r
+    cartesian <- projectionEquidistantConic(data$Latitude, data$Longitude, "na")
+  ```
 
 #### projectionNA    
   shortcut for projectionEquidistantConic(lat, long, "na")     
-  `lat` and `long`: numeric vectors, same as _projectionEquidistantConic_       
+  `lat` and `long`: numeric vectors, same as _projectionEquidistantConic_           
+  example:    
+  ```r
+    cartesian <- projectionNA(data$Latitude, data$Longitude)
+  ```
    
 #### fixCoords    
   a function meant to change coordinates from inType to outType      
@@ -50,7 +68,11 @@ rgdal requires GDAL version >= 1.11.4, and PROJ version >= 4.8.0.
   `lat` and `long`: numeric vectors of latitude and longitude in inType    
   `datetime`: POSIXct vector of datetime if it's needed (currently unused, ignore this)    
   `inType`: character, name of the coordinate type _lat_ and _long_ are in (currently supports "WGS84")     
-  `outType`: character, name of the coordinate type you want to convert to (currently supports "NAD83")    
+  `outType`: character, name of the coordinate type you want to convert to (currently supports "NAD83")        
+  example:    
+  ```r
+    data[c("Latitude", "Longitude")] <- fixCoords(data$Latitude, data$Longitude)[c("lat", "long")]
+  ```
 
 #### generateRandomFlight    
   creates a dataframe of random flight data that is totally random and nothing like a real bird, but still useful for testing     
@@ -63,7 +85,12 @@ rgdal requires GDAL version >= 1.11.4, and PROJ version >= 4.8.0.
   `multi`: numeric, the distance the bird travels in each observation (in change in lat/long) will be a random number with a minimum of 0 and a maximum of multi    
   `rand`: function, a function that generates random numbers in [0,1], where the first parameter is the number of numbers to generate (default is normal distribution, mean=0.5, sd=0.125, limited to [0,1])     
   `fakemisc`: boolean, if you want to fake the other columns needed for _bank_    
-  `n`: numeric, the Animal_ID or FALSE to randomize it (used only if _fakemisc_ is TRUE)    
+  `n`: numeric, the Animal_ID or FALSE to randomize it (used only if _fakemisc_ is TRUE)        
+  example:    
+  ```r
+    dataG1 <- generateRandomFlight() #every parameter has a default value, running the function with no parameters will work fine
+    dataG2 <- generateRandomFlight(origin=c(63.53, -150.27), obs=500)
+  ```
  
 ## Data Input    
 _bank_ uses specific column names of the data. Specifically, it needs columns named

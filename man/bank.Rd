@@ -9,19 +9,19 @@ bank(
   projectionType = "na",
   timeformat = "\%m/\%d/\%Y \%T",
   ct = TRUE,
-  coordFix = function(lat, long, n) {     return(data.frame(lat, long)) }
+  tonad83 = FALSE
 )
 }
 \arguments{
 \item{data:}{dataframe, the input data}
 
-\item{projectionType:}{boolean or character, FALSE if you don't want to convert lat/long to X/Y (if you want to use an existing X and Y). Accepted values: "North_America_Equidistant_Conic"}
+\item{projectionType:}{character or function, NULL if you don't want to convert lat/long to X/Y (if you want to use an existing X and Y). Otherwise a character (the name of a projection), or a function(lat, long, datetime) where lat and long are vectors of numbers and datetime is a vector of POSIXct corresponding to the time of those observations. should return a data frame with two numeric columns, x and y}
 
 \item{timeformat:}{character (format for use in as.POSIXct), the format Date_Time is in}
 
 \item{ct:}{boolean, FALSE if you want time to be saved as a string in move bank format, TRUE if you want it as a POSIXct}
 
-\item{coordFix:}{function, a function that converts lat and long at datetime to NAD83, inputs are vectors lat (numeric), long (numeric), and datetime (POSIXct). returns a data frame with columns "lat" and "long". FALSE if you don't want to change the coords at all.}
+\item{tonad83:}{boolean, TRUE if you want to convert from WGS84 to NAD83 before projection}
 }
 \description{
 changes data to Movebank format for use with ctmm package

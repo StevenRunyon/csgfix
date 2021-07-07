@@ -1,7 +1,7 @@
 Package: csgfix
 Type: Package
 Title: csgfix
-Version: 0.1.0
+Version: 0.1.1
 Author: Steve Runyon, Conservation Science Global
 Maintainer: Steve Runyon <steve.runyon@consciglobal.org>
 Description: Changes the format of data for use with the ctmm package.

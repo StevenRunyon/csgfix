@@ -4,7 +4,7 @@
 \alias{projectionNA}
 \title{projects lat and long coordinates to x and y with North American equidistant conic projection}
 \usage{
-projectionNA(lat, long)
+projectionNA(lat, long, v2 = NULL)
 }
 \arguments{
 \item{lat:}{numeric vector, latitude (lat and long should be the same length)}

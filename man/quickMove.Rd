@@ -6,7 +6,8 @@
 \usage{
 quickMove(
   data,
-  proj = CRS("+init=epsg:4326 +proj=longlat +ellps=WGS84 +datum=WGS84"),
+ 
+    proj = CRS("+init=epsg:4326 +ellps=WGS84 +datum=WGS84 +no_defs +proj=eqdc +lat_1=20 +lat_2=60 +lat_0=0 +lon_0=0"),
   removeDuplicatedTimestamps = FALSE
 )
 }

@@ -4,18 +4,18 @@
 \alias{fixCoords}
 \title{converts coordinates from inType to outType}
 \usage{
-fixCoords(lat, long, datetime = FALSE, inType = "WGS84", outType = "NAD83")
+fixCoords(lat, long, inType = "WGS84", outType = "NAD83", datetime = NULL)
 }
 \arguments{
 \item{lat:}{numeric vector, latitude (lat, long, and datetime should be the same length)}
 
 \item{long:}{numeric vector, longitude}
 
-\item{datetime:}{POSIXct vector, the datetime when lat and long were recorded}
-
 \item{inType:}{character, format that lat and long are in}
 
 \item{outType:}{character, format that you want the coordinates converted to}
+
+\item{datetime:}{POSIXct vector, the datetime when lat and long were recorded (currently unused)}
 }
 \description{
 converts coordinates from inType to outType

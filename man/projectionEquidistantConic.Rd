@@ -2,12 +2,12 @@
 % Please edit documentation in R/csgfix.r
 \name{projectionEquidistantConic}
 \alias{projectionEquidistantConic}
-\title{projects lat and long coordinates to x and y with equidistant conic projection}
+\title{projects lat and long coordinates to x and y with equidistant conic (simple conic) projection}
 \usage{
 projectionEquidistantConic(
   lat,
   long,
-  type = FALSE,
+  type = NULL,
   reflat = 0,
   reflong = 0,
   sp1 = 20,
@@ -21,8 +21,8 @@ projectionEquidistantConic(
 
 \item{long:}{numeric vector, longitude}
 
-\item{type:}{boolean or character, FALSE to use your own parameters, or the name of a preset}
+\item{type:}{character, NULL to use your own parameters, or the name of a preset}
 }
 \description{
-projects lat and long coordinates to x and y with equidistant conic projection
+projects lat and long coordinates to x and y with equidistant conic (simple conic) projection
 }

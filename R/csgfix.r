@@ -261,7 +261,7 @@ fixCoords <- function(lat, long, inType="WGS84", outType="NAD83", datetime=NULL)
 quickMove <- function(data, proj=CRS("+init=epsg:4326 +ellps=WGS84 +datum=WGS84 +no_defs +proj=eqdc +lat_1=20 +lat_2=60 +lat_0=0 +lon_0=0"), timeformat="%m/%d/%Y %H:%M", removeDuplicatedTimestamps=FALSE, projectionType=NULL){
   require(move)
   b <- bank(data, projectionType, timeformat)
-  m <- move::move(x=b$x, y=b$y, time=b$timestamp, data=b, proj=proj, animal=b$individual.local.identifier, sensor=b$sensor, removeDuplicatedTimestamps=removeDuplicatedTimestamps)
+  m <- move::move(x=b$x, y=b$y, time=b$timestamp, data=b, proj=proj, sensor=b$sensor, animal=b$individual.local.identifier, removeDuplicatedTimestamps=removeDuplicatedTimestamps)
   return(m)
 }
 

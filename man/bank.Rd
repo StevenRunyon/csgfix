@@ -21,7 +21,7 @@ bank(
 
 \item{ct:}{boolean, FALSE if you want time to be saved as a string in move bank format, TRUE if you want it as a POSIXct}
 
-\item{tonad83:}{boolean, TRUE if you want to convert from WGS84 to NAD83 before projection}
+\item{tonad83:}{boolean, TRUE if you want to convert from WGS84 to NAD83 before projection (only used when projectionType is a character)}
 }
 \description{
 changes data to Movebank format for use with ctmm package

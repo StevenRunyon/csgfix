@@ -10,22 +10,20 @@ The package can be installed from GitHub using the `devtools` package.
 devtools::install_github("StevenRunyon/csgfix")
 ```
 
-In addition, the *fixCoords* function requires the packages `sp` and `rgdal`. The *bank* function requires the package `dplyr`. These can be downloaded from CRAN.    
+In addition,  the packages `move` and `ctmm` are required. These can be downloaded from CRAN.    
 ```r
-install.packages("sp")
-install.packages("rgdal")
-install.packages("dplyr")
+install.packages("move")
+install.packages("ctmm")
 ```   
-rgdal requires GDAL version >= 1.11.4, and PROJ version >= 4.8.0.
 
 ## Functions and Parameters
 #### bank
   the primary function of the package, changes data from the input format to a data frame in the Movebank format (for use with the _move_ function)    
   `data`: dataframe, see "Data Input"    
-  `projectionType`: boolean or character, FALSE or the name of a projection (like "na" for North America Equidistant Conic)     
+  `projectionType`: logical or character, FALSE or the name of a projection (like "na" for North America Equidistant Conic)     
   `timeformat`: character, the format Date_Time is in (for use with as.POSIXct)    
-  `ct`: boolean, TRUE to use POSIXct timestamps, FALSE to use characters that are in the Movebank format    
-  `coordFix`: function, a function that returns a data frame with "lat" and "long" in the desired , it has 3 inputs, numeric vectors for lat and long and a POSIXct vector for timestamp (by default, this simply returns a dataframe of the first two inputs)    
+  `ct`: logical, TRUE to use POSIXct timestamps, FALSE to use characters that are in the Movebank format    
+  `tonad83`: logical, TRUE if you want to convert from WGS84 to NAD83 before projection (only used when projectionType is a character)
   example:    
   ```r
     data <- read.csv("AKgoeasHrly_ex.txt")
@@ -36,17 +34,27 @@ rgdal requires GDAL version >= 1.11.4, and PROJ version >= 4.8.0.
   shortcut for creating Move object from data   
   `data`: dataframe, the data used for _bank_   
   `proj`: CRS object, the projection type for _move::move_    
-  `removeDuplicatedTimestamps`: boolean, just what it says, sent to _move::move_        
+  `removeDuplicatedTimestamps`: logical, just what it says, sent to _move::move_   
+  `projectionType`: character or function, sent to _bank_      
   example:    
   ```r
     data <- read.csv("AKgoeasHrly_ex.txt")
     movedata <- quickMove(data)
   ```
+  
+#### quickTelemetry    
+  shortcut for creating a Telemetry object from a Move object from data   
+  really just a shortcut for `ctmm::as.telemetry(quickMove(data, ...))`, uses all the same parameters as _quickMove_
+  example:    
+  ```r
+    data <- read.csv("AKgoeasHrly_ex.txt")
+    telemetry <- quickTelemetry(data)
+  ```
 
 #### projectionEquidistantConic    
   projects lat and long to x and y using equidistant conic projection    
   `lat` and `long`: numeric vectors of latitude and longitude (to be equivalent to ArcGIS, these must be in NAD83)     
-  `type`: boolean or character, FALSE or the name of a preset set of parameters (like "na" for North America Equidistant Conic) accepted values: "na"   
+  `type`: logical or character, FALSE or the name of a preset set of parameters (like "na" for North America Equidistant Conic) accepted values: "na"   
   `reflat`, `reflong`, `sp1`, `sp2`: numeric, parameters for the projection if not using _type_ (reference latitude, reference longitude, and standard parallels)     
   example:    
   ```r
@@ -61,19 +69,6 @@ rgdal requires GDAL version >= 1.11.4, and PROJ version >= 4.8.0.
     cartesian <- projectionNA(data$Latitude, data$Longitude)
   ```
 
-#### fixCoords    
-  a function meant to change coordinates from inType to outType      
-  right now it uses the _spTransform_ function to change this type but it gives the same input, so it doesn't seem to be working properly right now
-  because of this, this function can be ignored for now    
-  `lat` and `long`: numeric vectors of latitude and longitude in inType    
-  `datetime`: POSIXct vector of datetime if it's needed (currently unused, ignore this)    
-  `inType`: character, name of the coordinate type _lat_ and _long_ are in (currently supports "WGS84")     
-  `outType`: character, name of the coordinate type you want to convert to (currently supports "NAD83")        
-  example:    
-  ```r
-    data[c("Latitude", "Longitude")] <- fixCoords(data$Latitude, data$Longitude)[c("lat", "long")]
-  ```
-
 #### generateRandomFlight    
   creates a dataframe of random flight data that is totally random and nothing like a real bird, but still useful for testing     
   `origin`: numeric vector of length 2, the coordinates where bird will start    
@@ -84,7 +79,7 @@ rgdal requires GDAL version >= 1.11.4, and PROJ version >= 4.8.0.
   `timestart`: POSIXct, the time you want the first observation to be    
   `multi`: numeric, the distance the bird travels in each observation (in change in lat/long) will be a random number with a minimum of 0 and a maximum of multi    
   `rand`: function, a function that generates random numbers in [0,1], where the first parameter is the number of numbers to generate (default is normal distribution, mean=0.5, sd=0.125, limited to [0,1])     
-  `fakemisc`: boolean, if you want to fake the other columns needed for _bank_    
+  `fakemisc`: logical, if you want to fake the other columns needed for _bank_    
   `n`: numeric, the Animal_ID or FALSE to randomize it (used only if _fakemisc_ is TRUE)        
   example:    
   ```r

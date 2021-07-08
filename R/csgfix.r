@@ -7,7 +7,7 @@
 #' @param projectionType: character or function, NULL if you don't want to convert lat/long to X/Y (if you want to use an existing X and Y). Otherwise a character (the name of a projection), or a function(lat, long, datetime) where lat and long are vectors of numbers and datetime is a vector of POSIXct corresponding to the time of those observations. should return a data frame with two numeric columns, x and y
 #' @param timeformat: character (format for use in as.POSIXct), the format Date_Time is in
 #' @param ct: boolean, FALSE if you want time to be saved as a string in move bank format, TRUE if you want it as a POSIXct
-#' @param tonad83: boolean, TRUE if you want to convert from WGS84 to NAD83 before projection
+#' @param tonad83: boolean, TRUE if you want to convert from WGS84 to NAD83 before projection (only used when projectionType is a character)
 bank <- function(data, projectionType="na", timeformat="%m/%d/%Y %T", ct=TRUE, tonad83=FALSE){
 
   #adds "timestamp" column

@@ -2,7 +2,7 @@
 % Please edit documentation in R/csgfix.r
 \name{quickTelemetry}
 \alias{quickTelemetry}
-\title{gets a Telemetry object from data}
+\title{gets a Telemetry object from data, shortcut for ctmm::as.telemetry(quickMove(data, ...))}
 \usage{
 quickTelemetry(data, proj, timeformat)
 }
@@ -18,5 +18,5 @@ quickTelemetry(data, proj, timeformat)
 \item{projectionType:}{character or function, sent to bank}
 }
 \description{
-gets a Telemetry object from data
+gets a Telemetry object from data, shortcut for ctmm::as.telemetry(quickMove(data, ...))
 }

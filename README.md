@@ -27,7 +27,7 @@ install.packages("ctmm")
   example:    
   ```r
     data <- read.csv("AKgoeasHrly_ex.txt")
-    data2 <- bank(data, coordfix=fixCoords)
+    data2 <- bank(data, projectionType=FALSE)
   ```
 
 #### quickMove    

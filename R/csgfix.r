@@ -20,26 +20,37 @@ bank <- function(data, projectionType="na", timeformat="%m/%d/%Y %T", ct=TRUE, t
     data$timestamp <- paste0((1900+timeline$year),"-",pad(timeline$mon,2),"-",pad(timeline$mday,2)," ",pad(timeline$hour,2),":",pad(timeline$min,2),":",pad(timeline$sec,2),".000")
   }
 
-  #projects coordinates
-  if(!is.null(projectionType)){
-    if(projectionType==FALSE)
-      res <- data.frame(y=data$Latitude, x=data$Longitude)
-    else if(typeof(projectionType)%in%c("closure","special","builtin"))
-      res <- projectionType(data$Latitude, data$Longitude, timeline)
-    else{
-      projectionType <- tolower(projectionType)
-      if(tonad83)
-        outType <- "NAD83"
-      else
-        outType <- "WGS84"
-      if(projectionType%in%c("north_america_equidistant_conic", "na", "north america equidistant conic", "naec")){
-        #res <- coordFix(data$Latitude, data$Longitude, timeline) #gets coordinates in NAD83 as "res"
-        res <- fixCoords(data$Latitude, data$Longitude, "WGS84", outType)
-        res <- projectionNA(res$lat, res$long) #gets X and Y coordinates as "res"
+  # if X and Y, changes them to x and y
+  if("X"%in%colnames(data) && "Y"%in%colnames(data)){
+    colnames(data)[colnames(data)=="X"] <- "x"
+    colnames(data)[colnames(data)=="Y"] <- "y"
+  }
+
+  # if no x and y, projects lat and long
+  if(!"x"%in%colnames(data) && !"y"%in%colnames(data)){
+
+    #projects coordinates
+    if(!is.null(projectionType)){
+      if(projectionType==FALSE)
+        res <- data.frame(y=data$Latitude, x=data$Longitude)
+      else if(typeof(projectionType)%in%c("closure","special","builtin"))
+        res <- projectionType(data$Latitude, data$Longitude, timeline)
+      else{
+        projectionType <- tolower(projectionType)
+        if(tonad83)
+          outType <- "NAD83"
+        else
+          outType <- "WGS84"
+        if(projectionType%in%c("north_america_equidistant_conic", "na", "north america equidistant conic", "naec")){
+          #res <- coordFix(data$Latitude, data$Longitude, timeline) #gets coordinates in NAD83 as "res"
+          res <- fixCoords(data$Latitude, data$Longitude, "WGS84", outType)
+          res <- projectionNA(res$lat, res$long) #gets X and Y coordinates as "res"
+        }
       }
+      data$x <- res$x
+      data$y <- res$y
     }
-    data$x <- res$x
-    data$y <- res$y
+
   }
 
   if("GMT_offset"%in%colnames(data))
@@ -68,6 +79,9 @@ bank <- function(data, projectionType="na", timeformat="%m/%d/%Y %T", ct=TRUE, t
       y <- append(y, x)
   }
   data <- data[y] #limits the columns to the ones we want to keep
+
+  if("ASY"%in%colnames(data) && !"individual.local.identifier"%in%colnames(data))
+    data$individual.local.identifier <- data$ASY #adds the ASY as individual.local.identifier if there isn't already one
 
   return(data)
 }
@@ -201,28 +215,9 @@ stupidRnorm <- function(n, mean=0.5, sd=0.125){
   return(x)
 }
 
-#' gets a Move object from data
-#' @param data: dataframe, the input data for bank(data)
-#' @param proj: CRS object, sent to move::move
-#' @param removeDuplicatedTimestamps: boolean, sent to move::move
-quickMove <- function(data, proj=CRS("+init=epsg:4326 +ellps=WGS84 +datum=WGS84 +no_defs +proj=eqdc +lat_1=20 +lat_2=60 +lat_0=0 +lon_0=0"), removeDuplicatedTimestamps=FALSE){
-  require(move)
-  b <- bank(data)
-  return(move(x=b$x, y=b$y, time=b$timestamp, proj=proj, data=b, animal=b$individual.local.identifier, sensor=b$sensor, removeDuplicatedTimestamps=removeDuplicatedTimestamps))
-}
 
-quickATM <- function(data){
-  b <- bank(data, projectionType=NULL)
-  wgs84 <- "+init=epsg:4326 +ellps=WGS84 +datum=WGS84 +no_defs"
-  nad83 <- "+init=epsg:4269 +ellps=GRS80 +datum=NAD83 +no_defs"
-   eqdc <- "+proj=eqdc +lat_1=20 +lat_2=60 +lat_0=0 +lon_0=0"
-  require(sp)
-  require(ctmm)
-  x <- as.telemetry(b, datum=paste(wgs84, "+proj=latlong"), projection=paste(wgs84,eqdc))
-  return(x)
-}
 
-#'converts coordinates from inType to outType
+#'converts coordinates from inType to outType (DOES NOT WORK AT THE MOMENT)
 #' @param lat: numeric vector, latitude (lat, long, and datetime should be the same length)
 #' @param long: numeric vector, longitude
 #' @param inType: character, format that lat and long are in
@@ -255,4 +250,30 @@ fixCoords <- function(lat, long, inType="WGS84", outType="NAD83", datetime=NULL)
 
   coordf <- st_coordinates(coordf) #changes geometry points to data frame of numeric columns lat and long, then returns it
   return(data.frame(lat=coordf[,2], long=coordf[,1]))
+}
+
+#' gets a Move object from data
+#' @param data: dataframe, the input data for bank(data)
+#' @param proj: CRS object, sent to move::move
+#' @param timeformat: character (format for use in as.POSIXct), the format Date_Time is in
+#' @param removeDuplicatedTimestamps: boolean, sent to move::move
+#' @param projectionType: character or function, sent to bank
+quickMove <- function(data, proj=CRS("+init=epsg:4326 +ellps=WGS84 +datum=WGS84 +no_defs +proj=eqdc +lat_1=20 +lat_2=60 +lat_0=0 +lon_0=0"), timeformat="%m/%d/%Y %H:%M", removeDuplicatedTimestamps=FALSE, projectionType=NULL){
+  require(move)
+  b <- bank(data, projectionType, timeformat)
+  m <- move::move(x=b$x, y=b$y, time=b$timestamp, data=b, proj=proj, animal=b$individual.local.identifier, sensor=b$sensor, removeDuplicatedTimestamps=removeDuplicatedTimestamps)
+  return(m)
+}
+
+#' gets a Telemetry object from data, shortcut for ctmm::as.telemetry(quickMove(data, ...))
+#' @param data: dataframe, the input data for bank(data)
+#' @param proj: CRS object, sent to move::move
+#' @param timeformat: character (format for use in as.POSIXct), the format Date_Time is in
+#' @param removeDuplicatedTimestamps: boolean, sent to move::move
+#' @param projectionType: character or function, sent to bank
+quickTelemetry <- function(data, proj, timeformat){
+  require(ctmm)
+  m <- quickMove(data, proj, timeformat, removeDuplicatedTimestamps, projectionType)
+  t <- ctmm::as.telemetry(m)
+  return(t)
 }

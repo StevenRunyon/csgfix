@@ -2,7 +2,7 @@
 % Please edit documentation in R/csgfix.r
 \name{fixCoords}
 \alias{fixCoords}
-\title{converts coordinates from inType to outType}
+\title{converts coordinates from inType to outType (DOES NOT WORK AT THE MOMENT)}
 \usage{
 fixCoords(lat, long, inType = "WGS84", outType = "NAD83", datetime = NULL)
 }
@@ -18,5 +18,5 @@ fixCoords(lat, long, inType = "WGS84", outType = "NAD83", datetime = NULL)
 \item{datetime:}{POSIXct vector, the datetime when lat and long were recorded (currently unused)}
 }
 \description{
-converts coordinates from inType to outType
+converts coordinates from inType to outType (DOES NOT WORK AT THE MOMENT)
 }

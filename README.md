@@ -40,7 +40,7 @@ install.packages("ctmm")
   example:    
   ```r
     data <- read.csv("AKgoeasHrly_ex.txt")
-	proj <- sp::CRS("+proj=latlong+ellps=WGS84 +datum=WGS84")
+	proj <- sp::CRS("+proj=latlong +ellps=WGS84 +datum=WGS84")
     movedata <- quickMove(data, proj=proj, timeformat="%m/%d/%Y %H:%M")
   ```
   
@@ -50,7 +50,7 @@ install.packages("ctmm")
   example:    
   ```r
     data <- read.csv("AKgoeasHrly_ex.txt")
-	proj <- sp::CRS("+proj=latlong+ellps=WGS84 +datum=WGS84")
+	proj <- sp::CRS("+proj=latlong +ellps=WGS84 +datum=WGS84")
     telemetry <- quickTelemetry(data, proj=proj, timeformat="%m/%d/%Y %H:%M")
   ```
 

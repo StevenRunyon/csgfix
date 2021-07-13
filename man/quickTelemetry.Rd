@@ -4,7 +4,13 @@
 \alias{quickTelemetry}
 \title{gets a Telemetry object from data, shortcut for ctmm::as.telemetry(quickMove(data, ...))}
 \usage{
-quickTelemetry(data, proj, timeformat)
+quickTelemetry(
+  data,
+  proj,
+  timeformat,
+  removeDuplicatedTimestamps,
+  projectionType
+)
 }
 \arguments{
 \item{data:}{dataframe, the input data for bank(data)}

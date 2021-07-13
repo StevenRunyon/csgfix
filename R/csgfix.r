@@ -254,11 +254,11 @@ fixCoords <- function(lat, long, inType="WGS84", outType="NAD83", datetime=NULL)
 
 #' gets a Move object from data
 #' @param data: dataframe, the input data for bank(data)
-#' @param proj: CRS object, sent to move::move
+#' @param proj: CRS object, sent to move::move (be sure to change this if you change projectionType)
 #' @param timeformat: character (format for use in as.POSIXct), the format Date_Time is in
 #' @param removeDuplicatedTimestamps: boolean, sent to move::move
 #' @param projectionType: character or function, sent to bank
-quickMove <- function(data, proj=CRS("+init=epsg:4326 +ellps=WGS84 +datum=WGS84 +no_defs +proj=eqdc +lat_1=20 +lat_2=60 +lat_0=0 +lon_0=0"), timeformat="%m/%d/%Y %H:%M", removeDuplicatedTimestamps=FALSE, projectionType=NULL){
+quickMove <- function(data, proj, timeformat="%m/%d/%Y %T", removeDuplicatedTimestamps=FALSE, projectionType=NULL){
   require(move)
   b <- bank(data, projectionType, timeformat)
   m <- move::move(x=b$x, y=b$y, time=b$timestamp, data=b, proj=proj, sensor=b$sensor, animal=b$individual.local.identifier, removeDuplicatedTimestamps=removeDuplicatedTimestamps)
@@ -271,9 +271,9 @@ quickMove <- function(data, proj=CRS("+init=epsg:4326 +ellps=WGS84 +datum=WGS84 
 #' @param timeformat: character (format for use in as.POSIXct), the format Date_Time is in
 #' @param removeDuplicatedTimestamps: boolean, sent to move::move
 #' @param projectionType: character or function, sent to bank
-quickTelemetry <- function(data, proj, timeformat){
+quickTelemetry <- function(data, proj, timeformat, removeDuplicatedTimestamps, projectionType){
   require(ctmm)
   m <- quickMove(data, proj, timeformat, removeDuplicatedTimestamps, projectionType)
-  t <- ctmm::as.telemetry(m)
+  t <- ctmm::as.telemetry(m, projection=proj)
   return(t)
 }

@@ -6,8 +6,7 @@
 \usage{
 quickMove(
   data,
- 
-    proj = CRS("+init=epsg:4326 +ellps=WGS84 +datum=WGS84 +no_defs +proj=eqdc +lat_1=20 +lat_2=60 +lat_0=0 +lon_0=0"),
+  proj = CRS("+ellps=WGS84 +datum=WGS84 +no_defs +proj=latlong"),
   timeformat = "\%m/\%d/\%Y \%H:\%M",
   removeDuplicatedTimestamps = FALSE,
   projectionType = NULL
@@ -16,7 +15,7 @@ quickMove(
 \arguments{
 \item{data:}{dataframe, the input data for bank(data)}
 
-\item{proj:}{CRS object, sent to move::move}
+\item{proj:}{CRS object, sent to move::move (be sure to change this if you change projectionType)}
 
 \item{timeformat:}{character (format for use in as.POSIXct), the format Date_Time is in}
 

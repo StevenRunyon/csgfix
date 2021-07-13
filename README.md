@@ -20,35 +20,38 @@ install.packages("ctmm")
 #### bank
   the primary function of the package, changes data from the input format to a data frame in the Movebank format (for use with the _move_ function)    
   `data`: dataframe, see "Data Input"    
-  `projectionType`: logical or character, FALSE or the name of a projection (like "na" for North America Equidistant Conic)     
+  `projectionType`: logical or character or function, how the coordinates should be projected, FALSE or the name of a projection (like "na" for North America Equidistant Conic) or a function(_lat_, _long_, _datetime_) where _lat_ and _long_ are vectors of numbers and _datetime_ is a vector of POSIXct corresponding to the time of those observations. Should return a data frame with two numeric columns, _x_ and _y_.        
   `timeformat`: character, the format Date_Time is in (for use with as.POSIXct)    
   `ct`: logical, TRUE to use POSIXct timestamps, FALSE to use characters that are in the Movebank format    
   `tonad83`: logical, TRUE if you want to convert from WGS84 to NAD83 before projection (only used when projectionType is a character)
   example:    
   ```r
     data <- read.csv("AKgoeasHrly_ex.txt")
-    data2 <- bank(data, projectionType=FALSE)
+    data2 <- bank(data)
   ```
 
 #### quickMove    
   shortcut for creating Move object from data   
   `data`: dataframe, the data used for _bank_   
   `proj`: CRS object, the projection type for _move::move_    
-  `removeDuplicatedTimestamps`: logical, just what it says, sent to _move::move_   
-  `projectionType`: character or function, sent to _bank_      
+  `timeformat`: character, the format Date_Time is in for use with as.POSIXct ("%m/%d/%Y %T" by default, see: https://stat.ethz.ch/R-manual/R-devel/library/base/html/strptime.html)    
+  `removeDuplicatedTimestamps`: logical, just what it says, sent to _move::move_ (FALSE by default)   
+  `projectionType`: logical or character or function, sent to _bank_ (FALSE by default, make sure you also change _proj_ to reflect any changes made here)      
   example:    
   ```r
     data <- read.csv("AKgoeasHrly_ex.txt")
-    movedata <- quickMove(data)
+	proj <- sp::CRS("+proj=latlong+ellps=WGS84 +datum=WGS84")
+    movedata <- quickMove(data, proj=proj, timeformat="%m/%d/%Y %H:%M")
   ```
   
 #### quickTelemetry    
   shortcut for creating a Telemetry object from a Move object from data   
-  really just a shortcut for `ctmm::as.telemetry(quickMove(data, ...))`, uses all the same parameters as _quickMove_
+  shortcut for `ctmm::as.telemetry(quickMove(data, ...), proj)`, uses all the same parameters as _quickMove_
   example:    
   ```r
     data <- read.csv("AKgoeasHrly_ex.txt")
-    telemetry <- quickTelemetry(data)
+	proj <- sp::CRS("+proj=latlong+ellps=WGS84 +datum=WGS84")
+    telemetry <- quickTelemetry(data, proj=proj, timeformat="%m/%d/%Y %H:%M")
   ```
 
 #### projectionEquidistantConic    

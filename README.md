@@ -7,7 +7,7 @@ A simple R package for fixing data for use with the `ctmm` package
 The package can be installed from GitHub using the `devtools` package.    
 ```r
 #install.packages("devtools")
-devtools::install_github("StevenRunyon/csgfix")
+devtools::install_github("consciglobal/csgfix")
 ```
 
 In addition,  the packages `move` and `ctmm` are required. These can be downloaded from CRAN.    
